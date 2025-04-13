@@ -1,19 +1,88 @@
-<script>
-  const targetDate = new Date("2025-04-28T17:00:00"); // April 28, 2025 at 5:00 PM
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Too Late in the Canyon</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Press Start 2P', cursive;
+      padding: 30px;
+      image-rendering: pixelated;
+      font-size: 12px;
+      line-height: 1.8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: left;
+      flex-direction: column;
+    }
 
-  const now = new Date();
-  if (now < targetDate) {
-    document.body.innerHTML = `
-      <div style="text-align: center; font-family: 'Press Start 2P', cursive; padding: 50px;">
-        <p>It's not time yet.</p>
-        <p>Please come back on <strong>April 28, 2025 at 5:00 PM</strong>.</p>
-      </div>
-    `;
-  } else {
-    // original script content here
+    #dialogue {
+      max-width: 800px;
+      white-space: pre-wrap;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .button {
+      display: inline-block;
+      margin: 20px 10px;
+      padding: 10px 20px;
+      background-color: #444;
+      color: #fff;
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #666;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .cursor {
+      display: inline-block;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    #countdown {
+      font-size: 30px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="bgMusic" autoplay loop>
+    <source src="videoplayback.webm" type="audio/webm">
+    Your browser does not support the audio element.
+  </audio>
+
+  <div id="dialogue"></div>
+
+  <div id="choices" class="hidden">
+    <button class="button" onclick="handleChoice(true)">Ready</button>
+    <button class="button" id="notYetButton" onclick="moveNotYet()">Not Yet</button>
+  </div>
+
+  <div id="countdown"></div>
+
+  <script>
     const dialogue = document.getElementById("dialogue");
     const choices = document.getElementById("choices");
     const notYetButton = document.getElementById("notYetButton");
+    const countdown = document.getElementById("countdown");
 
     const typingSound = new Audio("typewriter.mp3");
     typingSound.volume = 0.3;
@@ -25,15 +94,37 @@ Are you ready to move on?`;
     const story = `Unspoken Words
 
     In a small town nestled in the mountains of Japan, two childhood friends, Haruto and Aiko, grew up together, sharing everything from school projects to silly secrets. They had always been inseparable—two sides of the same coin. However, as they entered their final year of high school, something began to shift in Haruto’s heart. He realized that his feelings for Aiko had grown beyond friendship.`;
-    
+
     const confession = `So... I've been thinking this for weeks now... no, almost a month.
 
     I hope you still see me the same after I say this...
 
     I like you. I mean it.`;
-    
+
     let paragraphs = [];
     let currentStep = 0;
+
+    // Countdown Timer Logic
+    var countDownDate = new Date("Dec 31, 2025 12:00:00").getTime(); // Adjust to your desired date/time
+    var countdownInterval = setInterval(function() {
+      var now = new Date().getTime();
+      var distance = countDownDate - now;
+
+      // Time calculations for days, hours, minutes, and seconds
+      var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      // Display the result
+      countdown.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+      // If the countdown is finished, display a message
+      if (distance < 0) {
+        clearInterval(countdownInterval);
+        countdown.innerHTML = "EXPIRED";
+      }
+    }, 1000);
 
     function splitIntoParagraphs(text) {
       return text.trim().split(/\n\s*\n/);
@@ -108,8 +199,9 @@ Are you ready to move on?`;
       notYetButton.style.top = `${randomY}px`;
     }
 
-    // Start with intro
     paragraphs = splitIntoParagraphs(intro);
     showParagraphs(paragraphs, 0, showChoices);
-  }
-</script>
+  </script>
+
+</body>
+</html>
