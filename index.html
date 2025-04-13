@@ -59,11 +59,11 @@
       font-size: 30px;
       font-weight: bold;
       margin-top: 20px;
-      display: none; /* Hidden initially */
+      display: none;
     }
 
     #mainContent {
-      display: none; /* Hide the main content until countdown reaches 0 */
+      display: none;
     }
   </style>
 </head>
@@ -74,10 +74,8 @@
     Your browser does not support the audio element.
   </audio>
 
-  <!-- Countdown Section -->
   <div id="countdown"></div>
 
-  <!-- Main Content (Hidden until countdown reaches 0) -->
   <div id="mainContent">
     <div id="dialogue"></div>
 
@@ -90,6 +88,10 @@
   <script>
     const countdown = document.getElementById("countdown");
     const mainContent = document.getElementById("mainContent");
+    const dialogue = document.getElementById("dialogue");
+    const choices = document.getElementById("choices");
+    const notYetButton = document.getElementById("notYetButton");
+
     const typingSound = new Audio("typewriter.mp3");
     typingSound.volume = 0.3;
 
@@ -110,37 +112,35 @@ Are you ready to move on?`;
     let paragraphs = [];
     let currentStep = 0;
 
-    // Countdown Timer Logic (set to April 28, 2025, between 5:00 PM and 7:00 PM)
-    var countDownDate = new Date("April 28, 2025 17:00:00").getTime(); // Set to 5:00 PM, April 28, 2025
+    var countdownStart = new Date("April 28, 2025 17:00:00").getTime();
+    var countdownEnd = new Date("April 28, 2025 19:00:00").getTime();
     var countdownInterval;
 
     function startCountdown() {
-      countdown.style.display = "block"; // Show countdown
+      countdown.style.display = "block";
       countdownInterval = setInterval(function() {
-        var now = new Date().getTime();
-        var distance = countDownDate - now;
+      var now = new Date().getTime();
 
-        // Time calculations for days, hours, minutes, and seconds
+      if (now >= countdownStart && now <= countdownEnd) {
+        clearInterval(countdownInterval);
+        countdown.innerHTML = "";
+        showMainContent();
+      } else {
+        var distance = countdownStart - now;
+
         var days = Math.floor(distance / (1000 * 60 * 60 * 24));
         var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        // Display the result
         countdown.innerHTML = "Countdown: " + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-
-        // If the countdown is finished, reveal the content
-        if (distance < 0) {
-          clearInterval(countdownInterval);
-          countdown.innerHTML = "EXPIRED";
-          showMainContent(); // Show the main content when countdown ends
-        }
-      }, 1000);
+      }
+    }, 1000);
     }
 
     function showMainContent() {
-      mainContent.style.display = "block"; // Show the main content
-      startStory(); // Start the story after countdown
+      mainContent.style.display = "block";
+      startStory();
     }
 
     function splitIntoParagraphs(text) {
@@ -212,7 +212,7 @@ Are you ready to move on?`;
     function moveNotYet() {
       const maxX = window.innerWidth - notYetButton.offsetWidth;
       const maxY = window.innerHeight - notYetButton.offsetHeight;
-      
+
       const randomX = Math.random() * maxX;
       const randomY = Math.random() * maxY;
 
@@ -221,7 +221,6 @@ Are you ready to move on?`;
       notYetButton.style.top = `${randomY}px`;
     }
 
-    // Start countdown as soon as the page loads
     startCountdown();
   </script>
 
