@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Too Late in the Canyon</title>
+  <title>Special Message</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
     body {
@@ -112,30 +112,35 @@ Are you ready to move on?`;
     let paragraphs = [];
     let currentStep = 0;
 
-    var countdownStart = new Date("April 28, 2025 17:00:00").getTime();
-    var countdownEnd = new Date("April 28, 2025 19:00:00").getTime();
+    // UPDATED times to 12:00 PM
+    var countdownStart = new Date("April 28, 2025 12:00:00").getTime();
+    var countdownEnd = new Date("April 28, 2025 14:00:00").getTime();
     var countdownInterval;
 
     function startCountdown() {
       countdown.style.display = "block";
       countdownInterval = setInterval(function() {
-      var now = new Date().getTime();
+        var now = new Date().getTime();
 
-      if (now >= countdownStart && now <= countdownEnd) {
-        clearInterval(countdownInterval);
-        countdown.innerHTML = "";
-        showMainContent();
-      } else {
-        var distance = countdownStart - now;
+        if (now >= countdownStart && now <= countdownEnd) {
+          clearInterval(countdownInterval);
+          countdown.innerHTML = "";
+          showMainContent();
+        } else {
+          var distance = countdownStart - now;
 
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+          var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        countdown.innerHTML = "Countdown: " + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-      }
-    }, 1000);
+          if (distance > 0) {
+            countdown.innerHTML = "Unlocks at Noon: " + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+          } else {
+            countdown.innerHTML = "Almost there...";
+          }
+        }
+      }, 1000);
     }
 
     function showMainContent() {
