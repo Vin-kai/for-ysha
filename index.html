@@ -5,9 +5,6 @@ const dialogue = document.getElementById("dialogue");
 const choices = document.getElementById("choices");
 const notYetButton = document.getElementById("notYetButton");
 
-const typingSound = new Audio("typewriter.mp3");
-typingSound.volume = 0.3;
-
 const intro = `Hi Ysha... I hope you like this story I made. I put all my effort and time into it. Additionally, you will find the true meaning of this message.
 
 Are you ready to move on?`;
@@ -63,17 +60,6 @@ function splitIntoParagraphs(text) {
   return text.trim().split(/\n\s*\n/);
 }
 
-function typeWriter(text, i, callback) {
-  if (i < text.length) {
-    dialogue.innerHTML = text.slice(0, i) + '<span class="cursor">|</span>';
-    if (text[i] !== ' ') typingSound.play();
-    setTimeout(() => typeWriter(text, i + 1, callback), 60);
-  } else {
-    dialogue.innerHTML = text;
-    setTimeout(callback, 1200);
-  }
-}
-
 function showParagraphs(paragraphsArray, i = 0, callback) {
   if (i >= paragraphsArray.length) {
     if (callback) callback();
@@ -84,9 +70,8 @@ function showParagraphs(paragraphsArray, i = 0, callback) {
   setTimeout(() => {
     dialogue.innerHTML = "";
     dialogue.style.opacity = 1;
-    typeWriter(paragraphsArray[i], 0, () => {
-      setTimeout(() => showParagraphs(paragraphsArray, i + 1, callback), 1000);
-    });
+    dialogue.innerHTML = paragraphsArray[i]; // Directly show the paragraph text without animation
+    setTimeout(() => showParagraphs(paragraphsArray, i + 1, callback), 1000);
   }, 500);
 }
 
