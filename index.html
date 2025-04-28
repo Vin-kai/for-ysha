@@ -1,233 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Special Message</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-    body {
-      background-color: #000;
-      color: #fff;
-      font-family: 'Press Start 2P', cursive;
-      padding: 30px;
-      image-rendering: pixelated;
-      font-size: 12px;
-      line-height: 1.8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      text-align: left;
-      flex-direction: column;
-    }
+<script>
+const countdown = document.getElementById("countdown");
+const mainContent = document.getElementById("mainContent");
+const dialogue = document.getElementById("dialogue");
+const choices = document.getElementById("choices");
+const notYetButton = document.getElementById("notYetButton");
 
-    #dialogue {
-      max-width: 800px;
-      white-space: pre-wrap;
-      transition: opacity 0.5s ease-in-out;
-    }
+const typingSound = new Audio("typewriter.mp3");
+typingSound.volume = 0.3;
 
-    .button {
-      display: inline-block;
-      margin: 20px 10px;
-      padding: 10px 20px;
-      background-color: #444;
-      color: #fff;
-      border: 2px solid #fff;
-      cursor: pointer;
-    }
-
-    .button:hover {
-      background-color: #666;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .cursor {
-      display: inline-block;
-      animation: blink 1s infinite;
-    }
-
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
-
-    #countdown {
-      font-size: 30px;
-      font-weight: bold;
-      margin-top: 20px;
-      display: none;
-    }
-
-    #mainContent {
-      display: none;
-    }
-  </style>
-</head>
-<body>
-
-  <audio id="bgMusic" autoplay loop>
-    <source src="videoplayback.webm" type="audio/webm">
-    Your browser does not support the audio element.
-  </audio>
-
-  <div id="countdown"></div>
-
-  <div id="mainContent">
-    <div id="dialogue"></div>
-
-    <div id="choices" class="hidden">
-      <button class="button" onclick="handleChoice(true)">Ready</button>
-      <button class="button" id="notYetButton" onclick="moveNotYet()">Not Yet</button>
-    </div>
-  </div>
-
-  <script>
-    const countdown = document.getElementById("countdown");
-    const mainContent = document.getElementById("mainContent");
-    const dialogue = document.getElementById("dialogue");
-    const choices = document.getElementById("choices");
-    const notYetButton = document.getElementById("notYetButton");
-
-    const typingSound = new Audio("typewriter.mp3");
-    typingSound.volume = 0.3;
-
-    const intro = `Hi Ysha... I hope you like this story I made. I put all my effort and time into it. Additionally, you will find the true meaning of this message.
+const intro = `Hi Ysha... I hope you like this story I made. I put all my effort and time into it. Additionally, you will find the true meaning of this message.
 
 Are you ready to move on?`;
 
-    const story = `Unspoken Words
+const story = `Unspoken Words
 
-    In a small town nestled in the mountains of Japan, two childhood friends, Haruto and Aiko, grew up together, sharing everything from school projects to silly secrets. They had always been inseparable—two sides of the same coin. However, as they entered their final year of high school, something began to shift in Haruto’s heart. He realized that his feelings for Aiko had grown beyond friendship.`;
+In a small town nestled in the mountains of Japan, two childhood friends, Haruto and Aiko, grew up together, sharing everything from school projects to silly secrets. They had always been inseparable—two sides of the same coin. However, as they entered their final year of high school, something began to shift in Haruto’s heart. He realized that his feelings for Aiko had grown beyond friendship.`;
 
-    const confession = `So... I've been thinking this for weeks now... no, almost a month.
+const confession = `So... I've been thinking this for weeks now... no, almost a month.
 
-    I hope you still see me the same after I say this...
+I hope you still see me the same after I say this...
 
-    I like you. I mean it.`;
+I like you. I mean it.`;
 
-    let paragraphs = [];
-    let currentStep = 0;
+let paragraphs = [];
+let currentStep = 0;
+let opened = false; // <- added this to track if opened
 
-    // UPDATED times to 12:00 PM
-    var countdownStart = new Date("April 28, 2025 12:00:00").getTime();
-    var countdownEnd = new Date("April 28, 2025 14:00:00").getTime();
-    var countdownInterval;
+function startCountdown() {
+  countdown.style.display = "block";
+  setInterval(function() {
+    var now = new Date();
+    var start = new Date(now);
+    start.setHours(17, 0, 0, 0); // 5:00 PM
+    var end = new Date(now);
+    end.setDate(end.getDate() + 1); // 12:00 AM next day
+    end.setHours(0, 0, 0, 0);  
 
-    function startCountdown() {
-      countdown.style.display = "block";
-      countdownInterval = setInterval(function() {
-        var now = new Date().getTime();
-
-        if (now >= countdownStart && now <= countdownEnd) {
-          clearInterval(countdownInterval);
-          countdown.innerHTML = "";
-          showMainContent();
-        } else {
-          var distance = countdownStart - now;
-
-          var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-          var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-          if (distance > 0) {
-            countdown.innerHTML = "Unlocks at Noon: " + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-          } else {
-            countdown.innerHTML = "Almost there...";
-          }
-        }
-      }, 1000);
-    }
-
-    function showMainContent() {
-      mainContent.style.display = "block";
-      startStory();
-    }
-
-    function splitIntoParagraphs(text) {
-      return text.trim().split(/\n\s*\n/);
-    }
-
-    function typeWriter(text, i, callback) {
-      if (i < text.length) {
-        dialogue.innerHTML = text.slice(0, i) + '<span class="cursor">|</span>';
-        if (text[i] !== ' ') typingSound.play();
-        setTimeout(() => typeWriter(text, i + 1, callback), 60);
-      } else {
-        dialogue.innerHTML = text;
-        setTimeout(callback, 1200);
+    if ((now.getHours() >= 17 && now.getHours() <= 23) || now.getHours() === 0) {
+      if (!opened) {
+        opened = true;
+        countdown.innerHTML = "";
+        showMainContent();
       }
-    }
-
-    function showParagraphs(paragraphsArray, i = 0, callback) {
-      if (i >= paragraphsArray.length) {
-        if (callback) callback();
-        return;
+    } else {
+      var distance = start - now;
+      if (distance < 0) {
+        start.setDate(start.getDate() + 1);
+        distance = start - now;
       }
-
-      dialogue.style.opacity = 0;
-      setTimeout(() => {
-        dialogue.innerHTML = "";
-        dialogue.style.opacity = 1;
-        typeWriter(paragraphsArray[i], 0, () => {
-          setTimeout(() => showParagraphs(paragraphsArray, i + 1, callback), 1000);
-        });
-      }, 500);
+      var minutes = Math.floor(distance / (1000 * 60));
+      countdown.innerHTML = "Opens in: " + minutes + " minutes";
     }
+  }, 1000);
+}
 
-    function startStory() {
-      paragraphs = splitIntoParagraphs(intro);
-      showParagraphs(paragraphs, 0, showChoices);
-    }
+function showMainContent() {
+  mainContent.style.display = "block";
+  startStory();
+}
 
-    function showChoices() {
-      choices.classList.remove("hidden");
-    }
+function splitIntoParagraphs(text) {
+  return text.trim().split(/\n\s*\n/);
+}
 
-    function handleChoice(ready) {
-      choices.classList.add("hidden");
-      if (ready) {
-        nextStep();
-      } else {
-        dialogue.innerHTML = "Okay, take your time...";
-        setTimeout(() => {
-          dialogue.innerHTML = "Are you ready now?";
-          choices.classList.remove("hidden");
-        }, 10000);
-      }
-    }
+function typeWriter(text, i, callback) {
+  if (i < text.length) {
+    dialogue.innerHTML = text.slice(0, i) + '<span class="cursor">|</span>';
+    if (text[i] !== ' ') typingSound.play();
+    setTimeout(() => typeWriter(text, i + 1, callback), 60);
+  } else {
+    dialogue.innerHTML = text;
+    setTimeout(callback, 1200);
+  }
+}
 
-    function nextStep() {
-      dialogue.innerHTML = "";
-      if (currentStep === 0) {
-        paragraphs = splitIntoParagraphs(story);
-        currentStep++;
-        showParagraphs(paragraphs, 0, showChoices);
-      } else if (currentStep === 1) {
-        paragraphs = splitIntoParagraphs(confession);
-        currentStep++;
-        showParagraphs(paragraphs, 0);
-      }
-    }
+function showParagraphs(paragraphsArray, i = 0, callback) {
+  if (i >= paragraphsArray.length) {
+    if (callback) callback();
+    return;
+  }
 
-    function moveNotYet() {
-      const maxX = window.innerWidth - notYetButton.offsetWidth;
-      const maxY = window.innerHeight - notYetButton.offsetHeight;
+  dialogue.style.opacity = 0;
+  setTimeout(() => {
+    dialogue.innerHTML = "";
+    dialogue.style.opacity = 1;
+    typeWriter(paragraphsArray[i], 0, () => {
+      setTimeout(() => showParagraphs(paragraphsArray, i + 1, callback), 1000);
+    });
+  }, 500);
+}
 
-      const randomX = Math.random() * maxX;
-      const randomY = Math.random() * maxY;
+function startStory() {
+  paragraphs = splitIntoParagraphs(intro);
+  showParagraphs(paragraphs, 0, showChoices);
+}
 
-      notYetButton.style.position = 'absolute';
-      notYetButton.style.left = `${randomX}px`;
-      notYetButton.style.top = `${randomY}px`;
-    }
+function showChoices() {
+  choices.classList.remove("hidden");
+  dialogue.innerHTML = "Do you want to hear the story? (Yes or No)";
+}
 
-    startCountdown();
-  </script>
+function handleChoice(ready) {
+  choices.classList.add("hidden");
+  if (ready) {
+    nextStep();
+  } else {
+    dialogue.innerHTML = "Okay, here's the message...";
 
-</body>
-</html>
+    // Proceed directly to the confession message
+    setTimeout(() => {
+      paragraphs = splitIntoParagraphs(confession);
+      currentStep++;
+      showParagraphs(paragraphs, 0);
+    }, 1000);
+  }
+}
+
+function nextStep() {
+  dialogue.innerHTML = "";
+  if (currentStep === 0) {
+    paragraphs = splitIntoParagraphs(story);
+    currentStep++;
+    showParagraphs(paragraphs, 0, showChoices);
+  } else if (currentStep === 1) {
+    paragraphs = splitIntoParagraphs(confession);
+    currentStep++;
+    showParagraphs(paragraphs, 0);
+  }
+}
+
+function moveNotYet() {
+  const maxX = window.innerWidth - notYetButton.offsetWidth;
+  const maxY = window.innerHeight - notYetButton.offsetHeight;
+
+  const randomX = Math.random() * maxX;
+  const randomY = Math.random() * maxY;
+
+  notYetButton.style.position = 'absolute';
+  notYetButton.style.left = `${randomX}px`;
+  notYetButton.style.top = `${randomY}px`;
+}
+
+startCountdown();
+</script>
